@@ -4,6 +4,16 @@
     box-sizing: border-box;
 }
 
-body {
-    background-color: tomato;
+#text-editor {
+    border: .1rem solid;
+    height: 20rem;
+    width: 40rem;
+}
+
+#text-editor:focus {
+   outline: none;
+}
+
+.yellow {
+    background: rgb(238, 255, 0);
 }
