@@ -25,16 +25,16 @@
                   <th>Solicite sugestões</th>
                   <th>Sugestões</th>
                </tr>
-               <tr ng-repeat="alert in Alerts" ng-if="alert[1] > 1 && alert[0].length > 3">
-                  <td> <button ng-click="MarkWords(alert[0], alert[4])">{{alert[4] == true ? 'Desmarcar' : 'Marcar'}}  </button> 
+               <tr ng-repeat="alert in Alerts" ng-if="alert[AlertIndex.times] > 1 && alert[AlertIndex.word].length > 3">
+                  <td> <button ng-click="PrepareMark(alert[AlertIndex.word], alert[AlertIndex.isMarked])">{{alert[AlertIndex.isMarked] == true ? 'Desmarcar' : 'Marcar'}}  </button> 
                   </td>
-                  <td>{{alert[0]}}</td>
-                  <td>{{alert[1]}}</td>
-                  <td> <button ng-click="RequestSuggestions(alert[0])" ng-if="CheckButtonSuggestionVisibility(alert[0])">
+                  <td>{{alert[AlertIndex.word]}}</td>
+                  <td>{{alert[AlertIndex.times]}}</td>
+                  <td> <button ng-click="RequestSuggestions(alert[AlertIndex.word])" ng-if="CheckButtonSuggestionVisibility(alert[AlertIndex.word])">
                      {{Loading ? 'Carregando' : 'Solicitar Sugestão' }} </button> 
                   </td>
                   <td>
-                     <div ng-repeat="item in Suggestions | filter:{ word: alert[0]} ">
+                     <div ng-repeat="item in Suggestions | filter:{ word: alert[AlertIndex.word]} ">
                         <ul ng-repeat="synonym in item.synonyms">
                             <li ng-click="ChangeWordBySuggestion(synonym, item.word)">{{synonym}}</li>
                         </ul>
