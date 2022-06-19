@@ -1,114 +1,121 @@
 angular.module('app').controller('EditorController', ['$scope', '$http',  function($scope, $http) {
 
-  const URL_API = 'https://localhost:44324/Synonym?word=';
-  const REGEX_COMMAS = /[,]/g;
-  const REGEX_SPACE = /\&nbsp;/g;
-
-  $scope.Initialize = function() {
-      $scope.CurrentYear = new Date().getFullYear();
-      $scope.Alerts = [];
-      $scope.Suggestions = [];
-      $scope.Words = [];  
-  }
-
-  $scope.CheckText = function() {
-      const textWithoutCommas =  $scope.TextHTML.replace(REGEX_COMMAS, '');
-      $scope.TextEditor = textWithoutCommas.replace(REGEX_SPACE, '')
-      $scope.Words = $scope.TextEditor.toLowerCase().split(/\s+/g);
-      $scope.AlertsAux = $scope.Alerts;
-
-      $scope.CreateAlerts = arr => {
-          return arr.reduce((acc, val) => {
-              const {
-                  data,
-                  map
-              } = acc;
-              const ind = map.get(val);
-              if (map.has(val)) {
-                  data[ind][1]++;
-              } else {
-                  map.set(val, data.push([val, 1]) - 1, 2);
-              }
-              return {
-                  data,
-                  map
-              };
-          }, {
-              data: [],
-              map: new Map()
-          }).data;
-      };      
-      $scope.Alerts = $scope.CreateAlerts($scope.Words);
-      $scope.Alerts.forEach(element => {
-        element[4] =  $scope.AlertsAux.find(y => y[0] == element[0])[4];
-        $scope.MarkWords(element[0], !element[4]);
-      });
-  }
-
-  $scope.RequestSuggestions = function(wordKey) {
-
-      if ($scope.Loading) {
-          return;
-      }
-
-      $scope.Loading = true;
-
-      $http({
-          method: 'GET',
-          url: URL_API + wordKey
-      }).then(function successCallback(response) {
-
-          const suggestion = {
-              'word': response.data.word,
-              'synonyms': response.data.errorMessage == null 
-              ? (response.data.synonymsList.length > 10  ?  $scope.NewArrayByIndexes(response.data.synonymsList,0, 10) : response.data.synonymsList)
-              : [response.data.errorMessage]
-          };
-
-          $scope.Suggestions.push(suggestion);
-          $scope.Loading = false;
-
-      }, function errorCallback() {
-          $scope.ShowErrorRequest = true;
-      });
-  }
-
-  $scope.NewArrayByIndexes = function (array, startIndex, endIndex) {
-    let newArray = []; 
-    array.slice([startIndex], [endIndex]).map((item) => {
-      newArray.push(item);
-    });
-    return newArray;
-  }
-
-  $scope.CheckButtonSuggestionVisibility = function(word) {
-      return $scope.Suggestions.some(x => x.word == word) == false;
-  }
-
-  $scope.ChangeWordBySuggestion = function(synonym, word) {
-    $scope.TextHTML =  $scope.TextHTML.replace(word, synonym);
-    $scope.CheckText();
-  }
+    const URL_API = 'https://localhost:44324/Synonym?word=';
+    const REGEX_COMMAS = /[,]/g;
+    const REGEX_SPACE = /\&nbsp;/g;
+    const MIN_SUGGESTIONS = 0;
+    const MAX_SUGGESTIONS = 10;
+    const CLASS_MARK = 'yellow';
+    const ID_TEXT_EDITOR = 'text-editor';
   
-
-  $scope.MarkWords = function (word, isMarked) {
-    const instance = new Mark(document.querySelector('div#text-editor'));
-    $scope.Alerts.find(x => x[0] == word)[4] = !isMarked;
-    const hasMarked = $scope.Alerts.some(x => x[4] == true);
-    document.getElementById('text-editor').contentEditable = hasMarked ?  false : true;   
+    $scope.Initialize = function() {
+        $scope.CurrentYear = new Date().getFullYear();
+        $scope.Alerts = [];
+        $scope.Suggestions = [];
+        $scope.Words = [];  
+        $scope.AlertIndex = {
+          'word': 0,
+          'times': 1,
+          'isMarked': 2
+        };    
+    }
+  
+    $scope.CheckText = function() {
+        const textWithoutCommas =  $scope.TextHTML.replace(REGEX_COMMAS, '');
+        $scope.TextEditor = textWithoutCommas.replace(REGEX_SPACE, '')
+        $scope.Words = $scope.TextEditor.toLowerCase().split(/\s+/g);
+        $scope.AlertsAux = $scope.Alerts;
+  
+        $scope.CreateAlerts = arr => {
+            return arr.reduce((acc, val) => {
+                const {
+                    data,
+                    map
+                } = acc;
+                const ind = map.get(val);
+                if (map.has(val)) {
+                    data[ind][$scope.AlertIndex.times]++;
+                } else {
+                    map.set(val, data.push([val, $scope.AlertIndex.times]) - 1, 2);
+                }
+                return {
+                    data,
+                    map
+                };
+            }, {
+                data: [],
+                map: new Map()
+            }).data;
+        };      
+        $scope.Alerts = $scope.CreateAlerts($scope.Words);
+    }
+  
+    $scope.RequestSuggestions = function(wordKey) {
+  
+        if ($scope.Loading) {
+            return;
+        }
+  
+        $scope.Loading = true;
+  
+        $http({
+            method: 'GET',
+            url: URL_API + wordKey
+        }).then(function successCallback(response) {
+  
+            const suggestion = {
+                'word': response.data.word,
+                'synonyms': response.data.errorMessage == null 
+                ? (response.data.synonymsList.length > MAX_SUGGESTIONS  
+                  ?  $scope.NewArrayByIndexes(response.data.synonymsList, MIN_SUGGESTIONS, MAX_SUGGESTIONS) 
+                  : response.data.synonymsList)
+                : [response.data.errorMessage]
+            };
+  
+            $scope.Suggestions.push(suggestion);
+            $scope.Loading = false;
+  
+        }, function errorCallback() {
+            $scope.ShowErrorRequest = true;
+        });
+    }
+  
+    $scope.NewArrayByIndexes = function (array, startIndex, endIndex) {
+      let newArray = []; 
+      array.slice([startIndex], [endIndex]).map((item) => {
+        newArray.push(item);
+      });
+      return newArray;
+    }
+  
+    $scope.CheckButtonSuggestionVisibility = function(word) {
+        return $scope.Suggestions.some(x => x.word == word) == false;
+    }
+  
+    $scope.ChangeWordBySuggestion = function(synonym, word) {
+      $scope.TextHTML =  $scope.TextHTML.replace(word, synonym);
+      $scope.CheckText();
+    }
     
-    if (isMarked) {
-        instance.unmark();
+  
+    $scope.PrepareMark = function (word, isMarked) {
+      const textEditor = document.getElementById(ID_TEXT_EDITOR);
+      const instance = new Mark(textEditor);
+      $scope.Alerts.find(x => x[$scope.AlertIndex.word] == word)[$scope.AlertIndex.isMarked] = !isMarked;
+      const hasMarked = $scope.Alerts.some(x => x[$scope.AlertIndex.isMarked] == true);
+      textEditor.contentEditable = hasMarked ?  false : true;       
+      instance.unmark();
+      $scope.MarkWords(instance);
     }
-
-    for (let index = 0; index <  $scope.Alerts.filter(x => x[4] == true).length; index++) {
-        const element =  $scope.Alerts.filter(x => x[4] == true)[index][0];
-        instance.mark(element, {
-            seperateWordSearch: false,
-            className: "yellow",
-         });        
+  
+    $scope.MarkWords = function (instance) {
+      for (let index = 0; index <  $scope.Alerts.filter(x => x[$scope.AlertIndex.isMarked] == true).length; index++) {
+          const elementWord =  $scope.Alerts.filter(x => x[$scope.AlertIndex.isMarked] == true)[index][$scope.AlertIndex.word];
+          instance.mark(elementWord, {
+              seperateWordSearch: false,
+              className: CLASS_MARK,
+           });        
+      }
     }
-  }
-
-  $scope.Initialize();
-}]);
+    $scope.Initialize();
+  }]);
