@@ -14,9 +14,11 @@
       <title>Text Editor Pro</title>
    </head>
    <body ng-app="app" ng-cloak>
+         <div class="counter-container">
+         <h1 class="title-main">Editor de Texto</h1>
       <div ng-controller="EditorController as ctrlEditor">
          <div>
-            <div id="text-editor" contenteditable ng-model="TextHTML" ng-change="CheckText()"></div>     
+            <div id="text-editor" contenteditable ng-model="TextHTML" ng-change="CheckText()"> </div>
             <table id="alerts">
                <tr>
                   <th>Visualizar palavras no texto</th>
@@ -25,12 +27,14 @@
                   <th>Solicite sugestões</th>
                   <th>Sugestões</th>
                </tr>
-               <tr ng-repeat="alert in Alerts" ng-if="alert[1] > 1 && alert[0].length > 3">
-                  <td> <button ng-click="MarkWords(alert[0], alert[4])">{{alert[4] == true ? 'Desmarcar' : 'Marcar'}}  </button> 
+ 
+              
+               <tr id="results-text" ng-repeat="alert in Alerts" ng-if="alert[1] > 1 && alert[0].length > 3">
+                  <td> <button id="btn-mark"ng-click="MarkWords(alert[0], alert[4])">{{alert[4] == true ? 'Desmarcar' : 'Marcar'}}  </button> 
                   </td>
-                  <td>{{alert[0]}}</td>
-                  <td>{{alert[1]}}</td>
-                  <td> <button ng-click="RequestSuggestions(alert[0])" ng-if="CheckButtonSuggestionVisibility(alert[0])">
+                  <td id="words">{{alert[0]}}</td>
+                  <td id="amount">{{alert[1]}}</td>
+                  <td> <button ng-click="RequestSuggestions(alert[0])" ng-if="CheckButtonSuggestionVisibility(alert[0])" id="btn-suggestion">
                      {{Loading ? 'Carregando' : 'Solicitar Sugestão' }} </button> 
                   </td>
                   <td>
@@ -44,5 +48,6 @@
             </table>
          </div>
       </div>
+   </div>
    </body>
 </html>

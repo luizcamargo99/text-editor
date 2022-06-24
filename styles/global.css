@@ -1,13 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Roboto:wght@300&display=swap');
+
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    background-color: #324e5c;
+}
+
+:root {
+    --font-Bubblegum: 'Bubblegum Sans', cursive;
+}
+
+.counter-container {
+   /* background-color: #324e5c;   */
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   padding-top: 3em;
 }
 
 #text-editor {
+    display: flex;
+    background-color: #fff; 
     border: .1rem solid;
     height: 20rem;
     width: 40rem;
+
 }
 
 #text-editor:focus {
@@ -16,4 +35,58 @@
 
 .yellow {
     background: rgb(238, 255, 0);
+}
+
+.title-main {
+    font-family: var(--font-Bubblegum); 
+    color: #fff;
+    text-shadow: 2px 2px #000;
+    font-size: 2.6em;
+}
+
+#alerts th {
+    color: #fff;
+    font-family: sans-serif;
+}
+
+#amount {
+    background-color: #c46758;
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    width: 5px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+#words {
+    background-color: #c46758;
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+#btn-suggestion, #btn-mark {
+    background-color: #fff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1em;
+    border-radius: 10px;
+    font-family: sans-serif; 
+    opacity: 1;
+    width: 10em;
+    border: none;
+    height: 2em;
+    cursor: pointer;
+}
+
+#btn-suggestion:hover{
+    opacity: 0.5;
+}
+
+#btn-mark:hover{
+    opacity: 0.5;
 }
